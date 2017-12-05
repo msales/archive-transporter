@@ -108,7 +108,7 @@ func New(ctx context.Context, opts ...ConsumerFunc) (*Consumer, error) {
 	return c, nil
 }
 
-// Close closes the Kafka consumer.
+// Close closes the Consumer.
 func (c *Consumer) Close() {
 	if c.bufTicker != nil {
 		c.bufTicker.Stop()
