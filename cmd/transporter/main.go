@@ -17,7 +17,7 @@ const (
 	FlagBufferSize = "buffer.size"
 
 	FlagKafkaBrokers = "kafka.brokers"
-	FlagKafkaGroupId = "kafka.group-id"
+	FlagKafkaGroupID = "kafka.group-id"
 	FlagKafkaTopics  = "kafka.topics"
 )
 
@@ -59,7 +59,7 @@ var commands = []cli.Command{
 				EnvVar: "TRANSPORTER_KAFKA_BROKERS",
 			},
 			cli.StringFlag{
-				Name:   FlagKafkaGroupId,
+				Name:   FlagKafkaGroupID,
 				Value:  "transporter",
 				Usage:  "Specify the Kafka consumer group id",
 				EnvVar: "TRANSPORTER_KAFKA_GROUP_ID",

@@ -46,8 +46,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // TopicHandler handles requests to for messages.
 func (s *Server) TopicHandler(w http.ResponseWriter, r *http.Request) {
-	ctx, _ := context.WithTimeout(r.Context(), 100 * time.Millisecond)
 	topic := bone.GetValue(r, "topic")
+	
+	ctx, cancel := context.WithTimeout(r.Context(), 100 * time.Millisecond)
+	defer cancel()
 
 	b, err := s.app.GetNextMessage(ctx, topic)
 	if err != nil {

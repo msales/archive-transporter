@@ -31,7 +31,7 @@ func newKafkaConsumer(c *Context) (*kafka.Consumer, error) {
 	return kafka.New(
 		c,
 		kafka.WithBrokers(c.StringSlice(FlagKafkaBrokers)),
-		kafka.WithGroupId(c.String(FlagKafkaGroupId)),
+		kafka.WithGroupID(c.String(FlagKafkaGroupID)),
 		kafka.WithTopics(c.StringSlice(FlagKafkaTopics)),
 		kafka.WithBufferSize(c.Int(FlagBufferSize)),
 	)

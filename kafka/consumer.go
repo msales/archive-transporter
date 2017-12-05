@@ -14,24 +14,28 @@ import (
 // ConsumerFunc represents a function that configures the Consumer.
 type ConsumerFunc func(*Consumer)
 
+// WithBrokers sets the brokers on the Consumer.
 func WithBrokers(brokers []string) ConsumerFunc {
 	return func(c *Consumer) {
 		c.brokers = brokers
 	}
 }
 
-func WithGroupId(GroupId string) ConsumerFunc {
+// WithGroupID sets the group id on the Consumer.
+func WithGroupID(groupID string) ConsumerFunc {
 	return func(c *Consumer) {
-		c.groupId = GroupId
+		c.groupID = groupID
 	}
 }
 
+// WithTopics sets the topics on the Consumer.
 func WithTopics(topics []string) ConsumerFunc {
 	return func(c *Consumer) {
 		c.topics = topics
 	}
 }
 
+// WithBufferSize sets the buffer size on the Consumer.
 func WithBufferSize(size int) ConsumerFunc {
 	return func(c *Consumer) {
 		c.bufferSize = size
@@ -41,7 +45,7 @@ func WithBufferSize(size int) ConsumerFunc {
 // Consumer represents a buffered Kafka consumer.
 type Consumer struct {
 	brokers    []string
-	groupId    string
+	groupID    string
 	topics     []string
 	bufferSize int
 
@@ -65,8 +69,8 @@ func New(ctx context.Context, opts ...ConsumerFunc) (*Consumer, error) {
 		return nil, errors.New("consumer: at least one broker is required")
 	}
 
-	if len(c.groupId) == 0 {
-		return nil, errors.New("consumer: a groupId is required")
+	if len(c.groupID) == 0 {
+		return nil, errors.New("consumer: a groupID is required")
 	}
 
 	if c.topics == nil || len(c.topics) == 0 {
@@ -83,7 +87,7 @@ func New(ctx context.Context, opts ...ConsumerFunc) (*Consumer, error) {
 	config.Consumer.Return.Errors = true
 	config.Group.Mode = cluster.ConsumerModePartitions
 
-	consumer, err := cluster.NewConsumer(c.brokers, c.groupId, c.topics, config)
+	consumer, err := cluster.NewConsumer(c.brokers, c.groupID, c.topics, config)
 	if err != nil {
 		return nil, err
 	}
