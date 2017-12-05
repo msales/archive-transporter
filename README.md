@@ -12,7 +12,7 @@ Transporter can be configured with command line flags and environment variables.
 | ---- | ------- | ---------------- | ----------- | -------------------- |
 | --log.level | debug, info, warn, error | No | The log level to use. | TRANSPORTER_LOG_LEVEL |
 | --stats | | No | The stats dsn to connect to | TRANSPORTER_STATS |
-| --stats.tags | Yes | The tags to attach to all metrics | TRANSPORTER_STATS_TAGS |
+| --stats.tags | | Yes | The tags to attach to all metrics | TRANSPORTER_STATS_TAGS |
 | --port | | No | The address to bind to for the http server. | TRANSPORTER_PORT |
 | --buffer.size | | No | The size of each topics buffer. | TRANSPORTER_BUFFER_SIZE |
 | --kafka.brokers | | Yes | The kafka seed brokers connect to. Format: 'ip:port'. | TRANSPORTER_KAFKA_BROKERS |
