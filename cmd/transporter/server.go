@@ -31,10 +31,6 @@ func runServer(c *cli.Context) {
 	port := c.String(FlagPort)
 	srv := newServer(ctx, app)
 	h := http.Server{Addr: ":" + port, Handler: srv}
-	defer func() {
-		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-		h.Shutdown(ctx)
-	}()
 	go func() {
 		ctx.logger.Info(fmt.Sprintf("Starting server on port %s", port))
 		if err := h.ListenAndServe(); err != nil {
@@ -43,6 +39,7 @@ func runServer(c *cli.Context) {
 			}
 		}
 	}()
+	defer h.Shutdown(ctx)
 
 	quit := listenForSignals()
 	<-quit
