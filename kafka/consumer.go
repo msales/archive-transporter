@@ -83,7 +83,7 @@ func New(ctx context.Context, opts ...ConsumerFunc) (*Consumer, error) {
 	}
 	go c.monitorBuffers(ctx)
 
-	config := cluster.NewConfig();
+	config := cluster.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Group.Mode = cluster.ConsumerModePartitions
 
