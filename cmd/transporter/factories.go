@@ -81,6 +81,9 @@ func newStats(c *Context) (stats.Stats, error) {
 
 	case "l2met":
 		s = newL2metStats(c.logger)
+
+	default:
+		s = stats.Null
 	}
 
 	tags := utils.SplitMap(c.StringSlice(FlagStatsTags), "=")
