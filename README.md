@@ -2,8 +2,18 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/msales/transporter)](https://goreportcard.com/report/github.com/msales/transporter)
 [![Build Status](https://travis-ci.org/msales/transporter.svg?branch=master)](https://travis-ci.org/msales/transporter)
+[![Docker build](https://img.shields.io/docker/automated/msales/transporter.svg)](https://hub.docker.com/r/msales/transporter/)
 [![GitHub release](https://img.shields.io/github/release/msales/transporter.svg)](https://github.com/msales/transporter/releases)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/msales/transporter/master/LICENSE)
+
+## Usage
+
+Run the binary with the configuration options below
+```sh
+transporter server <CONFIG OPTIONS>
+```
+
+or run the docker container with the environment variables below
 
 ## Configuration
 
@@ -25,7 +35,7 @@ Transporter can be configured with command line flags and environment variables.
 ##### Multi value environment variables
 
 When using environment variables where multiple values are allowed, the values should be comma seperated.
-E.g. ```--kafka.topics=foo --kafka.topics=bar``` should become ```TRANSPORTER_KAFKA_TOPICS=foo,bar```.
+E.g. `--kafka.topics=foo --kafka.topics=bar` should become `TRANSPORTER_KAFKA_TOPICS=foo,bar`.
 
 ## HTTP Endpoints
 
