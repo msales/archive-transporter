@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/msales/transporter"
 	"github.com/msales/transporter/server"
@@ -37,10 +39,14 @@ func runServer(c *cli.Context) {
 			}
 		}
 	}()
-	defer h.Shutdown(ctx)
 
 	quit := listenForSignals()
 	<-quit
+
+	ctxServer, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	h.Shutdown(ctxServer)
+	ctx.logger.Info("Server stopped gracefully")
 }
 
 func newServer(ctx *Context, app *transporter.Application) http.Handler {
