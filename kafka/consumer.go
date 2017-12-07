@@ -149,7 +149,7 @@ func (c *Consumer) monitorBuffers(ctx context.Context) {
 	c.bufTicker = time.NewTicker(1 * time.Second)
 	for range c.bufTicker.C {
 		for topic, ch := range c.buf {
-			stats.Gauge(ctx, "buffer.useage", float64(len(ch) / cap(ch)), 1.0, map[string]string{"topic": topic})
+			stats.Gauge(ctx, "buffer.usage", float64(len(ch) / cap(ch)), 1.0, map[string]string{"topic": topic})
 		}
 	}
 }
