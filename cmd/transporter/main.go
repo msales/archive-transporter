@@ -12,7 +12,9 @@ import _ "github.com/joho/godotenv/autoload"
 const (
 	FlagPort     = "port"
 	FlagLogLevel = "log.level"
-	FlagStats    = "stats"
+
+	FlagStats     = "stats"
+	FlagStatsTags = "stats.tags"
 
 	FlagBufferSize = "buffer.size"
 
@@ -33,6 +35,12 @@ var commonFlags = []cli.Flag{
 		Value:  "",
 		Usage:  "The stats backend to use. (e.g. statsd://localhost:8125)",
 		EnvVar: "TRANSPORTER_STATS",
+	},
+	cli.StringSliceFlag{
+		Name:   FlagStatsTags,
+		Value:  &cli.StringSlice{},
+		Usage:  "Specify the tags attached to all metrics (e.g. tag1=value).",
+		EnvVar: "TRANSPORTER_STATS_TAGS",
 	},
 }
 
@@ -61,7 +69,7 @@ var commands = []cli.Command{
 			cli.StringFlag{
 				Name:   FlagKafkaGroupID,
 				Value:  "transporter",
-				Usage:  "Specify the Kafka consumer group id",
+				Usage:  "Specify the Kafka consumer group id (default: transporter)",
 				EnvVar: "TRANSPORTER_KAFKA_GROUP_ID",
 			},
 			cli.StringSliceFlag{

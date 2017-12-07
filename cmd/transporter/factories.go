@@ -6,6 +6,7 @@ import (
 
 	"github.com/msales/pkg/log"
 	"github.com/msales/pkg/stats"
+	"github.com/msales/pkg/utils"
 	"github.com/msales/transporter"
 	"github.com/msales/transporter/kafka"
 	"gopkg.in/inconshreveable/log15.v2"
@@ -70,16 +71,29 @@ func newStats(c *Context) (stats.Stats, error) {
 		return nil, err
 	}
 
+	var s stats.Stats
 	switch uri.Scheme {
 	case "statsd":
-		return newStatsdStats(uri.Host)
+		s, err = newStatsdStats(uri.Host)
+		if err != nil {
+			return nil, err
+		}
 
 	case "l2met":
-		return newL2metStats(c.logger), nil
+		s = newL2metStats(c.logger)
 
 	default:
-		return stats.Null, nil
+		s = stats.Null
 	}
+
+	tags := utils.SplitMap(c.StringSlice(FlagStatsTags), "=")
+	if len(tags) > 0 {
+		s = stats.NewTaggedStats(s, tags)
+	}
+
+	go stats.Runtime(s)
+
+	return s, nil
 }
 
 func newStatsdStats(addr string) (stats.Stats, error) {
