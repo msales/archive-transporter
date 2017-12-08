@@ -156,7 +156,7 @@ func (c *Consumer) GetNextBatch(ctx context.Context, topic string, count int) ([
 		return nil, nil
 	}
 
-	buf := make([][]byte, count)
+	buf := [][]byte{}
 	for i := 0; i < count; i++ {
 		select {
 		case msg, ok := <-ch:
@@ -166,7 +166,7 @@ func (c *Consumer) GetNextBatch(ctx context.Context, topic string, count int) ([
 
 			c.kafka.MarkOffset(msg, "")
 
-			buf[i] = msg.Value
+			buf = append(buf, msg.Value)
 
 		case <-ctx.Done():
 			return buf, nil
