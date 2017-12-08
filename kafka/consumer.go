@@ -149,6 +149,33 @@ func (c *Consumer) GetNextMessage(ctx context.Context, topic string) ([]byte, er
 	}
 }
 
+// GetNextBatch gets the next count messages from the queue.
+func (c *Consumer) GetNextBatch(ctx context.Context, topic string, count int) ([][]byte, error) {
+	ch, ok := c.buf[topic]
+	if !ok {
+		return nil, nil
+	}
+
+	buf := make([][]byte, count)
+	for i := 0; i < count; i++ {
+		select {
+		case msg, ok := <-ch:
+			if !ok {
+				return buf, nil
+			}
+
+			c.kafka.MarkOffset(msg, "")
+
+			buf[i] = msg.Value
+
+		case <-ctx.Done():
+			return buf, nil
+		}
+	}
+
+	return buf, nil
+}
+
 func (c *Consumer) monitorBuffers(ctx context.Context) {
 	c.bufTicker = time.NewTicker(1 * time.Second)
 	for range c.bufTicker.C {
