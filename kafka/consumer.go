@@ -156,7 +156,7 @@ func (c *Consumer) GetNextBatch(ctx context.Context, topic string, count int) ([
 		return nil, nil
 	}
 
-	buf := [][]byte{}
+	buf := make([][]byte, 0, count);
 	for i := 0; i < count; i++ {
 		select {
 		case msg, ok := <-ch:

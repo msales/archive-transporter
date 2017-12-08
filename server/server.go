@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"strconv"
 	"time"
 
 	"github.com/go-zoo/bone"
@@ -78,11 +79,16 @@ func (s *Server) TopicHandler(w http.ResponseWriter, r *http.Request) {
 // TopicHandler handles requests to for messages.
 func (s *Server) BatchTopicHandler(w http.ResponseWriter, r *http.Request) {
 	topic := bone.GetValue(r, "topic")
+	size := 100
+	ssize := r.URL.Query().Get("size")
+	if i64, err := strconv.ParseInt(ssize, 10, 64); err == nil {
+		size = int(i64)
+	}
 
 	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Millisecond)
 	defer cancel()
 
-	msgs, err := s.app.GetNextBatch(ctx, topic, 10)
+	msgs, err := s.app.GetNextBatch(ctx, topic, size)
 	if err != nil {
 		log.Error(r.Context(), "server: could not get message", "error", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
