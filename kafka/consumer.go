@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -84,9 +85,10 @@ func New(ctx context.Context, opts ...ConsumerFunc) (*Consumer, error) {
 	go c.monitorBuffers(ctx)
 
 	config := cluster.NewConfig()
-	config.Consumer.Fetch.Default = 1048576;
+	config.Consumer.Fetch.Default = 1048576
 	config.Consumer.Return.Errors = true
 	config.Group.Mode = cluster.ConsumerModePartitions
+	config.Group.Return.Notifications = true
 
 	consumer, err := cluster.NewConsumer(c.brokers, c.groupID, c.topics, config)
 	if err != nil {
@@ -96,6 +98,7 @@ func New(ctx context.Context, opts ...ConsumerFunc) (*Consumer, error) {
 
 	// Read and log errors in the Errors channel
 	go c.readErrors(ctx)
+	go c.readNotifications(ctx)
 
 	go func() {
 		for {
@@ -146,11 +149,39 @@ func (c *Consumer) GetNextMessage(ctx context.Context, topic string) ([]byte, er
 	}
 }
 
+// GetNextBatch gets the next count messages from the queue.
+func (c *Consumer) GetNextBatch(ctx context.Context, topic string, count int) ([][]byte, error) {
+	ch, ok := c.buf[topic]
+	if !ok {
+		return nil, nil
+	}
+
+	buf := make([][]byte, 0, count);
+	for i := 0; i < count; i++ {
+		select {
+		case msg, ok := <-ch:
+			if !ok {
+				return buf, nil
+			}
+
+			c.kafka.MarkOffset(msg, "")
+
+			buf = append(buf, msg.Value)
+
+		case <-ctx.Done():
+			return buf, nil
+		}
+	}
+
+	return buf, nil
+}
+
 func (c *Consumer) monitorBuffers(ctx context.Context) {
 	c.bufTicker = time.NewTicker(1 * time.Second)
 	for range c.bufTicker.C {
 		for topic, ch := range c.buf {
-			stats.Gauge(ctx, "buffer.usage", float64(len(ch)) / float64(cap(ch)), 1.0, map[string]string{"topic": topic})
+			stats.Gauge(ctx, "buffer.used", float64(len(ch)), 1.0, map[string]string{"topic": topic})
+			stats.Gauge(ctx, "buffer.usage", float64(len(ch)) / float64(cap(ch)) * 100, 1.0, map[string]string{"topic": topic})
 		}
 	}
 }
@@ -161,8 +192,15 @@ func (c *Consumer) readErrors(ctx context.Context) {
 	}
 }
 
+func (c *Consumer) readNotifications(ctx context.Context) {
+	for ntf := range c.kafka.Notifications() {
+		log.Info(ctx, fmt.Sprintf("consumer: rebalanced %v", ntf))
+	}
+}
+
 func (c *Consumer) readPartition(pc cluster.PartitionConsumer) {
+	ch := c.buf[pc.Topic()]
 	for msg := range pc.Messages() {
-		c.buf[msg.Topic] <- msg
+		ch <- msg
 	}
 }

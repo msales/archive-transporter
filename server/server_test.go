@@ -20,6 +20,20 @@ func (a testApp) GetNextMessage(ctx context.Context, topic string) ([]byte, erro
 	return a.nextMessage()
 }
 
+func (a testApp) GetNextBatch(ctx context.Context, topic string, count int) ([][]byte, error) {
+	msgs := [][]byte{}
+	for i := 0; i < count; i++ {
+		msg, err := a.nextMessage()
+		if err != nil {
+			return nil, err
+		}
+
+		msgs = append(msgs, msg)
+	}
+
+	return msgs, nil
+}
+
 func (a testApp) IsHealthy() error {
 	return a.isHealthy()
 }
